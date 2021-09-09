@@ -90,11 +90,24 @@ async function findById(scheme_id) { // EXERCISE B
         "steps": []
       }
   */
-    return db('schemes as sc')
+  const rows =  await db('schemes as sc')
       .leftJoin('steps as st', 'sc.scheme_id', 'st.scheme_id')
       .where('sc.scheme_id', scheme_id)
-      .select('st.*', 'sc.scheme_name')
+      .select('st.*', 'sc.scheme_name', 'sc.scheme_id')
       .orderBy('st.step_number')
+
+  const result = {
+    scheme_id: rows[0].scheme_id,
+    scheme_name: rows[0].scheme_name,
+    steps: rows.map(row => {
+      return {
+        step_id: row.step_id, 
+        step_number: row.step_number, 
+        instructions: row.instructions
+      }
+    })
+  }
+  return result
 }
 
 function findSteps(scheme_id) { // EXERCISE C
